@@ -5,6 +5,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken")
 const bodyparser = require("body-parser");
 const ejs = require("ejs");
+const { v4: uuidv4 } = require('uuid');
 const mongoose = require("mongoose");
 const session = require("express-session")
 const passport = require("passport");
@@ -29,7 +30,7 @@ var CurrentUser ;
   
 const momentschema = new mongoose.Schema({
   createdTime:String,
-  username:String,
+  u_id:String,
   date: String ,
   time : String,
   place:String,
@@ -38,10 +39,12 @@ const momentschema = new mongoose.Schema({
   response:String, 
 })
 const userschema = new mongoose.Schema({
+  u_id:String,
   email:String,
   username:String,
   password:String,
 })
+
 userschema.plugin(passportlocalmongoose);
 const Moment = new mongoose.model("Moment",momentschema);
 const User = new mongoose.model("User",userschema);
@@ -78,8 +81,8 @@ app.post("/register",function(req,res){
   //       console.log("email Exist")
   //       return res.status(400).json("Email already Exist!")
   //     } 
-  CurrentUser = req.body.username;
-  User.register({username :req.body.username,email:req.body.email},req.body.password,function(err,user){
+  // CurrentUser = {username:req.body.username};
+  User.register({u_id:uuidv4(),username :req.body.username,email:req.body.email},req.body.password,function(err,user){
     if (err) {
       console.log(err);
       res.sendStatus(500);
@@ -107,19 +110,22 @@ app.post("/register",function(req,res){
 
 // })
 
+
+
 app.post("/login",function(req,res){
-  const email = req.body.email;
+  // const email = req.body.email;
   const username = req.body.username;
   const password = req.body.password;
 
   const user = new User({
-    email:email,
+    // email:email,
     username:username,
     password:password ,
   });
-  CurrentUser = username;
-  
-  // console.log("tapped login route")
+
+  // console.log(uuidv4());
+  // console.log(CurrentUser.u_id);
+
  
   req.login(user,function(err){
     if (err) {
@@ -142,11 +148,11 @@ app.post("/login",function(req,res){
            jwt.sign({user},process.env.SECRETKEY,(err,token)=>{
             //  console.log(token);
             //  JSON.parse(localStorage.setItem(token));
-            User.find({},function(err,results){
+            User.findOne({username:username},function(err,result){
               if(err){
                 console.log(err)
               }else{
-                  res.json({token : token,users:results});
+                  res.json({token : token,user:result});
             // console.log(results);
               }
              });
@@ -176,20 +182,22 @@ app.post("/login",function(req,res){
     }
   }
 
-app.get("/post",verifyToken,function(req,res){
+app.get("/post/:uid",verifyToken,function(req,res){
 
   // console.log(req.headers)
   // console.log(CurrentUser);
+  const uid =req.params.uid;
+  console.log(uid);
    jwt.verify(req.token,process.env.SECRETKEY,(err,authData)=>{
     if(err){
       res.sendStatus(403);
     }else{
-      Moment.find({username:CurrentUser},function(err,results){
+      Moment.find({u_id:uid},function(err,results){
         if(err){
           console.log("Error Occured "+err);
           window.alert(err);
         }else if(results){
-          // console.log(results);
+          console.log(results);
           res.json({results})
           // res.json({results,authData})
         }
@@ -209,8 +217,9 @@ app.get("/post",verifyToken,function(req,res){
 //     res.json(result)
 //   });
 // });
-app.post("/post",verifyToken,function(req,res){
+app.post("/post/:uid",verifyToken,function(req,res){
 
+  const uid =req.params.uid;
     console.log(req.body);
   //  const createdTime = req.body.createdTime;
    const date = req.body.date;
@@ -222,7 +231,7 @@ app.post("/post",verifyToken,function(req,res){
  
   const moment = new Moment({
     // createdTime:createdTime,
-    username:CurrentUser,
+    u_id:uid,
     date:date,
     time:time,
     place:place,
