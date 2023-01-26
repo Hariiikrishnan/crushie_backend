@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const bodyparser = require("body-parser");
 const ejs = require("ejs");
 const { v4: uuidv4 } = require('uuid');
+var md5 = require('md5');
 const mongoose = require("mongoose");
 const session = require("express-session")
 const passport = require("passport");
@@ -89,10 +90,11 @@ app.post("/register",function(req,res){
       return;
   }
     else{
+      // console.log(uuidv4())
         passport.authenticate("local")(req,res,function(){
           jwt.sign({user},process.env.SECRETKEY,(err,token)=>{
 
-              res.json({token : token});
+              res.json({token : token,user:user});
              });
             // res.send("Regsitered Successfully! Now go to Login page");
         })
@@ -137,14 +139,7 @@ app.post("/login",function(req,res){
      
         passport.authenticate("local")(req,res,function(){
 
-          // User.find({},function(err,results){
-          //     if(err){
-          //       console.log(err)
-          //     }else{
-          //         res.json({users:results});
-          //   // console.log(results);
-          //     }
-          //    });
+       
            jwt.sign({user},process.env.SECRETKEY,(err,token)=>{
             //  console.log(token);
             //  JSON.parse(localStorage.setItem(token));
@@ -156,9 +151,7 @@ app.post("/login",function(req,res){
             // console.log(results);
               }
              });
-            //  res.json();
-            //  res.json({users:User});
-            //  res.cookie('jwt',token, { httpOnly: true, secure: true, maxAge: 3600000 })
+          
            });
            
             // res.redirect("/post");
@@ -246,10 +239,12 @@ app.post("/post/:uid",verifyToken,function(req,res){
      moment.save(function(err,result){
       if (err) {
         console.log(err);
-        res.sendStatus(500);
-        return;
+        // res.sendStatus(500);
+        // return;
+    }else{
+      res.json(result);
     }
-      res.send("Data Sent" + result);
+     
     })
 })
 app.post("/edit/:postid",verifyToken,function(req,res){
