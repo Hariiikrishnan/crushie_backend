@@ -5,6 +5,10 @@ import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import bodyparser from "body-parser";
 
+const app =express();
+app.use(bodyparser.urlencoded({extended:true}));
+
+
 const getMoments = asyncHandler(async (req, res) => {
   const uid = req.params.uid;
   console.log(uid);

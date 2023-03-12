@@ -8,6 +8,7 @@ import passport from "passport";
 
 
 const app = express();
+app.use(bodyparser.urlencoded({extended:true}));
 
 const authUser = asyncHandler(async (req, res) => {
   const username = req.body.username;
