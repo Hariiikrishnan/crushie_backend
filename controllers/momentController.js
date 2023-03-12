@@ -62,9 +62,8 @@ const createMoment = asyncHandler(async (req, res) => {
 });
 
 const updateMoment = asyncHandler(async (req, res) => {
-  const id = req.params.postid;
   Moment.findOneAndUpdate(
-    { _id: ObjectId(id) },
+    { _id: req.params.postid },
     req.body,
     { new: true, useFindAndModify: false },
     function (err, result) {

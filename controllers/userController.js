@@ -11,9 +11,9 @@ const app = express();
 app.use(bodyparser.urlencoded({extended:true}));
 
 const authUser = asyncHandler(async (req, res) => {
+
   const username = req.body.username;
   const password = req.body.password;
-
   const user = new User({
     username: username,
     password: password,
@@ -41,6 +41,7 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const registerUser = asyncHandler(async (req, res) => {
+ 
   User.register(
     { u_id: uuidv4(), username: req.body.username, email: req.body.email },
     req.body.password,
