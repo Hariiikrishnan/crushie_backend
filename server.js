@@ -3,6 +3,8 @@ import session from "express-session";
 import dotenv from "dotenv";
 import bodyparser from "body-parser";
 import passport from "passport";
+import cors from "cors";
+
 import connectDB from './config/db.js'
 import userRoutes from './routes/userRoutes.js'
 import momentRoutes from './routes/momentRoutes.js'
