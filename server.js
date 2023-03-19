@@ -6,11 +6,14 @@ import passport from "passport";
 import cors from "cors";
 
 import connectDB from './config/db.js'
+
 import userRoutes from './routes/userRoutes.js'
 import momentRoutes from './routes/momentRoutes.js'
 
-dotenv.config()
 
+import memoryRoutes from './routes/memoryRoutes.js'
+
+dotenv.config()
 connectDB()
 const app = express()
 const PORT = process.env.PORT || 3001;
@@ -27,9 +30,14 @@ app.use(session({
   }));
 app.use(passport.session());
 
-
+// Crushie EndPoints
 app.use('/crushie/users', userRoutes)
 app.use('/crushie/moments', momentRoutes)
+
+// NB Memories Wall EndPoints
+app.use('/nbMemories', memoryRoutes)
+
+
 
 app.listen(PORT, function() {
     console.log("Server is running on Port: " + PORT);
