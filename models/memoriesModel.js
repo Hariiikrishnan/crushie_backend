@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 
 
 const memoriesSchema = new mongoose.Schema({
-    p_id:String,
+    u_mid:Number,
+    x:String,
     content:String,
     name:String
   });

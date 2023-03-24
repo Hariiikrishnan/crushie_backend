@@ -7,7 +7,7 @@ import {
     createMemory
 } from "../controllers/memoriesController.js";
 
-app.get("/post", getAllMemories);
+app.get("/post/:pgNo", getAllMemories);
 app.post("/post",createMemory);
 
 
