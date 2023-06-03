@@ -13,6 +13,8 @@ import momentRoutes from './routes/momentRoutes.js'
 
 import memoryRoutes from './routes/memoryRoutes.js'
 
+import budgetRoutes from './routes/budgetRoutes.js'
+
 dotenv.config()
 connectDB()
 const app = express()
@@ -37,6 +39,8 @@ app.use('/crushie/moments', momentRoutes)
 // NB Memories Wall EndPoints
 app.use('/nbMemories', memoryRoutes)
 
+// Budgetize Endpoints
+app.use('/budgetize', budgetRoutes)
 
 
 app.listen(PORT, function() {
