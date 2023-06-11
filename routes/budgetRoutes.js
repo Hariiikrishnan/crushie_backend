@@ -8,7 +8,7 @@ import {
 
 // app.get("/post/:uid", verifyToken, getMoments);
 app.get("/:pgNo",getAllLedger);
-app.get("/:searchDate",getSearchedLedger);
+app.get("/search/:searchDate",getSearchedLedger);
 app.post("",createBudget);
 app.delete("/:id",deleteLedger);
 // app.post("/edit/:postid",verifyToken,updateMoment);

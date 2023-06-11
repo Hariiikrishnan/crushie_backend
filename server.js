@@ -14,6 +14,7 @@ import momentRoutes from './routes/momentRoutes.js'
 import memoryRoutes from './routes/memoryRoutes.js'
 
 import budgetRoutes from './routes/budgetRoutes.js'
+import budUserRoutes from './routes/budUserRoutes.js'
 
 dotenv.config()
 connectDB()
@@ -41,6 +42,7 @@ app.use('/nbMemories', memoryRoutes)
 
 // Budgetize Endpoints
 app.use('/budgetize', budgetRoutes)
+app.use('/budgetize/users', budUserRoutes)
 
 
 app.listen(PORT, function() {

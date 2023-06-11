@@ -47,6 +47,8 @@ const getSearchedLedger = asyncHandler( async (req,res)=>{
 
 const createBudget = asyncHandler(async (req, res) => {
 
+    
+
     const expenses = req.body.expenses;
     const totalPerday = req.body.totalPerDay;
     const ledgerDate = req.body.ledgerDate;
@@ -59,8 +61,34 @@ const createBudget = asyncHandler(async (req, res) => {
     });
 
     budget.save(function (err, result) {
-      if (err) {
-        console.log(err);
+      if (err || err?.err.code===11000) {
+        // const updatedExpense = req.body.expenses.flat(1);
+        // // console.log(err.keyValue.ledgerDate)
+        // console.log(...req.body.expenses)
+        // console.log(updatedExpense)
+        Budget.findOneAndUpdate(
+          { ledgerDate: err.keyValue.ledgerDate },
+          {$push:{expenses: req.body.expenses},
+           $inc:{totalPerday:req.body.totalPerDay}},
+          // {expenses:req.body.expenses,
+          //   totalPerday:totalPerday+req.body.totalPerDay},
+          { new: true, useFindAndModify: false },
+          function (err, result) {
+            if (err) {
+              console.log(err);
+              res.sendStatus(500);
+              return;
+            }
+            console.log(result)
+            res.json(result);
+          }
+        );
+
+
+        // console.log(err.code);
+        //   res.sendStatus(409);
+          // res.json({errorMessage:"Duplicate Key"});
+        
         // res.sendStatus(500);
         // return;
       } else {

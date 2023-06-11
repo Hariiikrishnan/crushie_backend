@@ -7,6 +7,11 @@ const budegtschema = new mongoose.Schema({
     totalPerday:Number,
     ledgerDate:String
   });
+
+
+  budegtschema.index(
+    {ledgerDate:1},{unique:true}
+  );
   const Budget = new mongoose.model("Budget",budegtschema);
 
   export default Budget
