@@ -120,5 +120,16 @@ const createBudget = asyncHandler(async (req, res) => {
     })
   })
 
+   const recentFetch = asyncHandler(async(req,res)=>{
 
-  export {  createBudget ,getAllLedger,getSearchedLedger, deleteLedger };
+    try{
+      const results = await Budget.find({}).limit(3)
+
+      res.json({results})
+    }catch (error) {
+      console.log("Error Message :" , error )
+    }
+   })
+
+   
+  export {  createBudget ,getAllLedger,getSearchedLedger, deleteLedger , recentFetch};

@@ -26,7 +26,7 @@ const authUser = asyncHandler(async (req, res) => {
       return;
     } else {
       passport.authenticate("local")(req, res, function () {
-        jwt.sign({ user }, process.env.SECRETKEY, (err, token) => {
+        jwt.sign({ user }, process.env.SECRETKEY, {expiresIn:"1h"}, (err, token) => {
           BudUser.findOne({ username: username }, function (err, result) {
             if (err) {
               console.log(err);

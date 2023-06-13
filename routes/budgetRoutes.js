@@ -3,14 +3,15 @@ import verifyToken from "../utils/verifyToken.js";
 const app = express();
 
 import {
-  createBudget , getAllLedger , getSearchedLedger, deleteLedger
+  createBudget , getAllLedger , getSearchedLedger, deleteLedger , recentFetch
 } from "../controllers/budgetController.js";
 
 // app.get("/post/:uid", verifyToken, getMoments);
-app.get("/:pgNo",getAllLedger);
-app.get("/search/:searchDate",getSearchedLedger);
-app.post("",createBudget);
-app.delete("/:id",deleteLedger);
+app.get("/allLedger/:pgNo",verifyToken,getAllLedger);
+app.get("/search/:searchDate",verifyToken,getSearchedLedger);
+app.get("/recent/",verifyToken,recentFetch);
+app.post("",verifyToken,createBudget);
+app.delete("/:id",verifyToken,deleteLedger);
 // app.post("/edit/:postid",verifyToken,updateMoment);
 // app.delete("/delete/:postid",verifyToken,deleteMoment);
 
