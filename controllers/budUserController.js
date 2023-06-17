@@ -120,7 +120,7 @@ const challengers = asyncHandler(async(req,res)=>{
 })
 
 
-export { authUser, registerUser ,fbAuth,fbAuthMW,fbAuthRedirect,snapAuth,snapAuthMW, challengeHandler};
+export { authUser, registerUser ,challengeHandler};
 
 
 

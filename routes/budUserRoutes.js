@@ -5,23 +5,19 @@ import {upload} from "../utils/uploadImage.js"
 import {
     authUser,
     registerUser,
-    fbAuth,
-    fbAuthMW,
-    fbAuthRedirect,
-    snapAuth,
-    snapAuthMW,
+    
     challengeHandler
 } from '../controllers/budUserController.js'
 
 
 
-app.get('/auth/facebook',fbAuth);
-app.get('/auth/facebook/success',fbAuthMW,fbAuthRedirect);
+// app.get('/auth/facebook',fbAuth);
+// app.get('/auth/facebook/success',fbAuthMW,fbAuthRedirect);
 
-app.get('/auth/snapchat/',snapAuth)
-app.get('/auth/snapchat/callback',snapAuthMW,(req,res)=>{
-    res.send("Snapchat Success")
-})
+// app.get('/auth/snapchat/',snapAuth)
+// app.get('/auth/snapchat/callback',snapAuthMW,(req,res)=>{
+//     res.send("Snapchat Success")
+// })
 
 
 app.post("/challenge",challengeHandler);
