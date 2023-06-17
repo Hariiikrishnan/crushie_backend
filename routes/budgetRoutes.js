@@ -6,13 +6,12 @@ import {
   createBudget , getAllLedger , getSearchedLedger, deleteLedger , recentFetch
 } from "../controllers/budgetController.js";
 
-// app.get("/post/:uid", verifyToken, getMoments);
-app.get("/allLedger/:pgNo",verifyToken,getAllLedger);
-app.get("/search/:searchDate",verifyToken,getSearchedLedger);
-app.get("/recent/",verifyToken,recentFetch);
-app.post("",verifyToken,createBudget);
-app.delete("/:id",verifyToken,deleteLedger);
-// app.post("/edit/:postid",verifyToken,updateMoment);
-// app.delete("/delete/:postid",verifyToken,deleteMoment);
+
+app.get("/allLedger/:pgNo/:u_id",verifyToken,getAllLedger);
+app.get("/search/:searchDate/:u_id",verifyToken,getSearchedLedger);
+app.get("/recent/:u_id",verifyToken,recentFetch);
+app.post("/add/:u_id",verifyToken,createBudget);
+app.delete("/:id/:u_id",verifyToken,deleteLedger);
+
 
 export default app;

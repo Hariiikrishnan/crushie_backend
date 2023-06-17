@@ -1,5 +1,7 @@
 import express from "express";
 import Budget from "../models/budgetizeModel.js";
+import BudUser from "../models/budUsersModel.js";
+
 import jwt from "jsonwebtoken";
 
 import asyncHandler from "express-async-handler";
@@ -13,10 +15,11 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 const getAllLedger = asyncHandler(async(req,res)=>{
 
+
   const skip = req.params.pgNo ? Number(req.params.pgNo) : 0;
 
   try {
-    const results = await Budget.find({})
+    const results = await Budget.find({u_id:req.params.u_id})
     .sort({x:1,_id:1 })
     .skip(skip > 0 ? ( ( skip - 1 ) * 6) : 0)
     .limit(6)
@@ -31,10 +34,9 @@ const getAllLedger = asyncHandler(async(req,res)=>{
 
 const getSearchedLedger = asyncHandler( async (req,res)=>{
   const searchedDate = req.params.searchDate;
-  console.log(searchedDate);
-  console.log(req.params);
+  // console.log(searchedDate);
 
-  Budget.find({ledgerDate:searchedDate},(err,results)=>{
+  Budget.find({ledgerDate:searchedDate,u_id:req.params.u_id},(err,results)=>{
     if(err){
       console.log("Error Occured" + err);
       window.alert(err)
@@ -55,6 +57,7 @@ const createBudget = asyncHandler(async (req, res) => {
   
     const budget = new Budget({
       // createdTime:createdTime,
+      u_id:req.params.u_id,
       expenses:expenses,
       totalPerday:totalPerday,
       ledgerDate:ledgerDate
@@ -66,8 +69,9 @@ const createBudget = asyncHandler(async (req, res) => {
         // // console.log(err.keyValue.ledgerDate)
         // console.log(...req.body.expenses)
         // console.log(updatedExpense)
+        console.log(req.params.u_id+" in update")
         Budget.findOneAndUpdate(
-          { ledgerDate: err.keyValue.ledgerDate },
+          { ledgerDate: err.keyValue.ledgerDate},
           {$push:{expenses: req.body.expenses},
            $inc:{totalPerday:req.body.totalPerDay}},
           // {expenses:req.body.expenses,
@@ -79,19 +83,34 @@ const createBudget = asyncHandler(async (req, res) => {
               res.sendStatus(500);
               return;
             }
+            BudUser.findOneAndUpdate({u_id:req.params.u_id},
+              { $inc: { currentAmount:req.body.totalPerDay} },
+             { new: true, useFindAndModify: false },function(err,result){
+               if(err){
+                 console.log(err)
+               }
+               else{
+                 console.log("incremented")
+               }
+             })
             console.log(result)
             res.json(result);
           }
         );
 
-
-        // console.log(err.code);
-        //   res.sendStatus(409);
-          // res.json({errorMessage:"Duplicate Key"});
-        
-        // res.sendStatus(500);
-        // return;
       } else {
+
+          BudUser.findOneAndUpdate({u_id:req.params.u_id},
+             { $inc: { currentAmount:req.body.totalPerDay} },
+            { new: true, useFindAndModify: false },function(err,result){
+              if(err){
+                console.log(err)
+              }
+              else{
+                console.log("incremented")
+              }
+            })
+         
         console.log(result)
         res.json(result);
       }
@@ -101,7 +120,7 @@ const createBudget = asyncHandler(async (req, res) => {
   const deleteLedger = asyncHandler (async(req,res)=>{
     const id = req.params.id;
 
-    Budget.deleteOne({_id : id},function(err){
+    Budget.deleteOne({_id : id,u_id:req.params.u_id},function(err){
       if(err){
         console.log(err)
         res.sendStatus(500)
@@ -109,7 +128,7 @@ const createBudget = asyncHandler(async (req, res) => {
       }
     })
 
-    Budget.find({},(err,results)=>{
+    Budget.find({u_id:req.params.u_id,},(err,results)=>{
       if(err){
         console.log("Error Occured" + err);
         window.alert(err)
@@ -121,9 +140,9 @@ const createBudget = asyncHandler(async (req, res) => {
   })
 
    const recentFetch = asyncHandler(async(req,res)=>{
-
+ 
     try{
-      const results = await Budget.find({}).limit(3)
+      const results = await Budget.find({u_id:req.params.u_id}).limit(3)
 
       res.json({results})
     }catch (error) {

@@ -15,6 +15,7 @@ import memoryRoutes from './routes/memoryRoutes.js'
 
 import budgetRoutes from './routes/budgetRoutes.js'
 import budUserRoutes from './routes/budUserRoutes.js'
+import budgetProfile from './routes/budgetProfile.js'
 
 dotenv.config()
 connectDB()
@@ -42,6 +43,7 @@ app.use('/nbMemories', memoryRoutes)
 
 // Budgetize Endpoints
 app.use('/budgetize', budgetRoutes)
+app.use('/budgetize/account', budgetProfile)
 app.use('/budgetize/users', budUserRoutes)
 
 
