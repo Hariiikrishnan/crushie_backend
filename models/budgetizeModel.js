@@ -10,9 +10,9 @@ const budegtschema = new mongoose.Schema({
   });
 
 
-  budegtschema.index(
-    {ledgerDate:1},{unique:true}
-  );
+  // budegtschema.index(
+  //   {ledgerDate:1},{unique:true}
+  // );
   const Budget = new mongoose.model("Budget",budegtschema);
-   Budget.createIndexes();
+  //  Budget.createIndexes();
   export default Budget

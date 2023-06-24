@@ -11,7 +11,7 @@ app.get("/allLedger/:pgNo/:u_id",verifyToken,getAllLedger);
 app.get("/search/:searchDate/:u_id",verifyToken,getSearchedLedger);
 app.get("/recent/:u_id",verifyToken,recentFetch);
 app.post("/add/:u_id",verifyToken,createBudget);
-app.delete("/:id/:u_id",verifyToken,deleteLedger);
+app.delete("/:id/:u_id/:totAm",verifyToken,deleteLedger);
 
 
 export default app;

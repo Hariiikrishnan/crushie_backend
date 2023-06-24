@@ -4,8 +4,10 @@ import dotenv from "dotenv";
 import bodyparser from "body-parser";
 import passport from "passport";
 import cors from "cors";
+import schedule from "node-schedule";
 
 import connectDB from './config/db.js'
+// import chlngPoints from './utils/chlngPoints.js'
 
 import userRoutes from './routes/userRoutes.js'
 import momentRoutes from './routes/momentRoutes.js'
@@ -34,6 +36,7 @@ app.use(session({
   }));
 app.use(passport.session());
 
+
 // Crushie EndPoints
 app.use('/crushie/users', userRoutes)
 app.use('/crushie/moments', momentRoutes)
@@ -45,6 +48,17 @@ app.use('/nbMemories', memoryRoutes)
 app.use('/budgetize', budgetRoutes)
 app.use('/budgetize/account', budgetProfile)
 app.use('/budgetize/users', budUserRoutes)
+
+
+
+// 58 23 * * *
+
+    schedule.scheduleJob("21 11 * * *",()=>{
+        console.log("Im Coming")
+    })
+
+
+
 
 
 app.listen(PORT, function() {

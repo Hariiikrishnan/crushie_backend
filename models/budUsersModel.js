@@ -16,7 +16,8 @@ const userschema = new mongoose.Schema({
   password: String,
   maxLimit:Number,
   currentAmount:Number,
-  challenge:String
+  challenger:String,
+  challenge_id:String
 });
 userschema.plugin(passportlocalmongoose);
 userschema.plugin(findOrCreate);

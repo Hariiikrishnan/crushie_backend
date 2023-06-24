@@ -21,6 +21,7 @@ import {
 
 
 app.post("/challenge",challengeHandler);
+
 app.post("/login",authUser);
 app.post("/register",upload.single("profilePhoto"),registerUser);
 
