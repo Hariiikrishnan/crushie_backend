@@ -141,8 +141,8 @@ const challengeHandler = asyncHandler(async (req, res) => {
           const challenge = new BudChallenge({
             challenge_id: id,
             start_date: date,
-            user1:result1.u_id,
-            user2:result2.u_id,
+            user1: result1.u_id,
+            user2: result2.u_id,
             user1_pt: 0,
             user2_pt: 0,
             winner: "",
@@ -163,115 +163,148 @@ const challengeHandler = asyncHandler(async (req, res) => {
   );
 });
 
-// const challengeHandler2 = asyncHandler(async(res,res)=>{
-//   const id = uuidv4();
-//   const challenge = new BudChallenge({
-//     challenge_id:id,
-//     start_date:new Date
-//   })
-// })
-// schedule.scheduleJob("30 16 * * *",()=>{
-//   console.log("Im Coming")
-  const date = new Date();
-  var temp;
-  const todayDate = date.getFullYear()+"-"+('0'+(date.getMonth()+1).toString().slice(-2))+"-"+date.getDate();
-  console.log(todayDate);
-  BudChallenge.find({},function(err,results){
-    // console.log(results)
-    results.map((result)=>{
-  
-      // console.log(result)
-      BudUser.find({challenge_id:result.challenge_id},function(err,results1){
-        // console.log(results1)
-        // results1.map((result1)=>{
-          // console.log(result1)
-          var compet_1 = results1[0];
-          var compet_2 = results1[1] ;
-          console.log(results1[0].u_id)
-          console.log(results1[1].u_id)
-          if(compet_1.u_id!==result.user1){
-            temp=compet_1;
-            compet_1=compet_2;
-            compet_2=temp;
+
+schedule.scheduleJob("58 23 * * *",()=>{
+  console.log("Schedule Started")
+const date = new Date();
+var temp;
+var limitPerday_1,limitPerday_2,user1Percent,user2Percent;
+const todayDate =
+  date.getFullYear() +
+  "-" +
+  ("0" + (date.getMonth() + 1).toString().slice(-2)) +
+  "-" +
+  date.getDate();
+
+
+BudChallenge.find({}, function (err, challenges) {
+  if (err) {
+    console.log(err);
+  } else {
+   
+    challenges.map((challenge) => {
+      BudUser.find(
+        { challenge_id: challenge.challenge_id },
+        function (err2, challengedUsers) {
+          if (err2) throw err2;
+        
+
+          // Algorithm for challenge points declaration system.!!
+          if(challenge.user1===challengedUsers[0].u_id){
+            console.log("ivandhaan");
+          }else if(challenge.user1===challengedUsers[1].u_id){
+              console.log("should swap")
+            temp=challengedUsers[1];
+            challengedUsers[1]=challengedUsers[0];
+            challengedUsers[0]=temp;
+            
+             limitPerday_1 = challengedUsers[0].maxLimit/30;
+             limitPerday_2 = challengedUsers[1].maxLimit/30;
+     
+            Budget.find(
+                {
+                    u_id: [challengedUsers[0].u_id, challengedUsers[1].u_id],
+                    ledgerDate: todayDate,
+                  },
+                  function (err3, todayLedgers) {
+                      if (err3) throw err3;
+                 
+                      if (
+                          todayLedgers.length === 0 &&
+                          (todayLedgers[0]===undefined &&
+                          todayLedgers[1]===undefined)
+                        ) {
+                            console.log("Empty.. So No Points");
+                          } else if(todayLedgers[1]===undefined && todayLedgers[0]){
+                            if(todayLedgers[0].u_id===challenge.user1){
+                              if(todayLedgers[0].totalPerday < limitPerday_1){
+                                console.log("1 free and 1 winning point user 1 raa")
+                                updateUser1Point(challenge.challenge_id,todayLedgers[0].u_id,2)
+                              }else if(todayLedgers[0].totalPerday > limitPerday_1){ 
+                                console.log("1 free point for user 1 raa")
+                                updateUser1Point(challenge.challenge_id,todayLedgers[0].u_id,1)
+                              }
+                            } else if(todayLedgers[0].u_id===challenge.user2){
+                              if(todayLedgers[0].totalPerday < limitPerday_2){
+                                console.log("1 free and 1 winning point user 2 raa")
+                                updateUser2Point(challenge.challenge_id,challenge.user2,2)
+                              }else if(todayLedgers[0].totalPerday > limitPerday_2){
+                                console.log("1 free point for user 2 raa")
+                                updateUser2Point(challenge.challenge_id,challenge.user2,1)
+                              }
+                            }
+
+                          }
+                          else if(todayLedgers[0] && todayLedgers[1]){
+                              if (challenge.user1 !== todayLedgers[0].u_id) {
+                                  console.log("should swap");
+                          
+                                  temp = todayLedgers[1];
+                                  todayLedgers[1] = todayLedgers[0];
+                                  todayLedgers[0] = temp;
+                                }
+                                
+                                
+                                user1Percent = Math.round((todayLedgers[0].totalPerday/limitPerday_1)*100);
+                                user2Percent = Math.round((todayLedgers[1].totalPerday/limitPerday_2)*100);
+                            
+
+                                if(todayLedgers[0].totalPerday < limitPerday_1){
+                                  console.log("USer 1 kammi")
+                                  if(user1Percent < user2Percent){
+                                    console.log("User 1 won 2 points")
+                                    updateUser1Point(challenge.challenge_id,todayLedgers[0].u_id,2)
+                                  }else{
+                                    console.log("User 1 won 1 points")
+                                    updateUser1Point(challenge.challenge_id,todayLedgers[0].u_id,1)
+                                  }
+                                }
+                                if(todayLedgers[1].totalPerday < limitPerday_2){
+                                  console.log("USer 2 vum kammi")
+                                  if(user2Percent < user1Percent){
+                                    console.log("User 2 won 2 points")
+                                    updateUser2Point(challenge.challenge_id,todayLedgers[1].u_id,2)
+                                  }else{
+                                    console.log("User 2 won 1 points")
+                                    updateUser2Point(challenge.challenge_id,todayLedgers[1].u_id,1)
+                                  }
+                                }else if(user1Percent===user2Percent){
+                                  console.log("Draw - Each one point")
+                                }
+
+                             
+                                  }
+                                }
+                              );
           }
-          
-          console.log(compet_1.u_id)
-          console.log(compet_2.u_id)
-          Budget.find({u_id:[compet_1.u_id,compet_2.u_id],ledgerDate:todayDate},function(err,challengLedger){
-         
-         
-            // if(challengLedger[0]){
-              // console.log(challengLedger[0].totalPerday)
-              // console.log(Math.round(results1[0].maxLimit/30))
-              // if(challengLedger[0].totalPerday < Math.round(results1[0].maxLimit/30)){
-              //   console.log("1 point")
-              // }
-              // console.log(challengLedger[1].totalPerday)
-              // // console.log(Math.round(results1[1].maxLimit/30))
-              // if(challengLedger[1].totalPerday < Math.round(results1[1].maxLimit/30)){
-              //   console.log("1 point")
-              // }
 
-              // Algorithm for Clash Point Declaration
+        }
+      );
+    });
+  }
+});
+});
 
+function updateUser2Point(challenge_uid,user_id,point) {
 
-              // If user1 is not entered ledger today
-          try{
-              var limitPerday_1 = Math.round(compet_1.maxLimit/30)
-              var limitPerday_2 = Math.round(compet_1.maxLimit/30)
-
-              var percent_1 = Math.round((challengLedger[0].totalPerday / limitPerday_1)*100);
-              var percent_2 = Math.round((challengLedger[1].totalPerday / limitPerday_2)*100);
-
-              // if(results1[0])
-              console.log(limitPerday_1,limitPerday_2)
-              console.log(percent_1 + "p1",percent_2 + "p2")
-              
-
-              if(percent_1 < percent_2){
-                console.log("Person 1 - 1 point")
-                BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
-                  $inc:{user1_pt:1}
-                },(err,result4)=>{
-                  if(err) throw err
-                  console.log(result4);
-                  console.log("Point added for user 1")
-                })
-              }
-             else if(percent_2 < percent_1){
-                console.log("Person 2 - 1 point")
-                BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
-                  $inc:{user2_pt:1}
-                },(err,result4)=>{
-                  if(err) throw err
-                  console.log(result4);
-                  console.log("Point added for user 2")
-                })
-              }
-             else if(percent_1 === percent_2){
-                console.log("Person 1 and 2 - 1 point")
-                BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
-                  $inc:{user1_pt:1,user2_pt:1}
-                },(err,result4)=>{
-                  if(err) throw err
-                  console.log(result4);
-                  console.log("Point added for both")
-                })
-              } 
-
-            } catch(error){
-              console.log(error)
-              // if(challengLedger[0].totalPerday===undefined){
-              //   console.log("1 free point for user1")
-              // }
-            }
-            // }
-          })
-        // })
-      })
-    })
+  BudChallenge.findOneAndUpdate({challenge_uid:challenge_uid,user2:user_id},{
+    $inc:{user2_pt:Number(point)}
+  },function(err,result){
+    if (err) throw err;
+    // console.log(result);
+    console.log(`${point} point for user 2`)
   })
-// })
+}
+function updateUser1Point(challenge_uid,user_id,point) {
+
+  BudChallenge.findOneAndUpdate({challenge_uid:challenge_uid,user1:user_id},{
+    $inc:{user1_pt:Number(point)}
+  },function(err,result){
+    if (err) throw err;
+    // console.log(result);
+    console.log(`${point} point for user 1`)
+  })
+}
 
 const challengers = asyncHandler(async (req, res) => {});
 
@@ -361,3 +394,188 @@ export { authUser, registerUser, challengeHandler };
 // const snapAuth=passport.authenticate('snapchat',{ scope: ['user.display_name', 'user.bitmoji.avatar'] });
 
 // const snapAuthMW=passport.authenticate('snapchat', { failureRedirect: '/login' })
+
+
+
+
+
+
+
+
+
+// Points Declaration Algorithm
+
+// BudChallenge.find({},function(err,results){
+//   // console.log(results)
+//   results.map((result)=>{
+
+//     // console.log(result)
+//     BudUser.find({challenge_id:result.challenge_id},function(err,results1){
+//       // console.log(results1)
+//       // results1.map((result1)=>{
+//         // console.log(result1)
+//         var compet_1 = results1[0];
+//         var compet_2 = results1[1] ;
+//         // console.log(results1[0].u_id)
+//         // console.log(results1[1].u_id)
+//         if(compet_1.u_id!==result.user1){
+//           temp=compet_1;
+//           compet_1=compet_2;
+//           compet_2=temp;
+//         }
+
+//         // console.log(compet_1.u_id)
+//         // console.log(compet_2.u_id)
+//         Budget.find({u_id:[compet_1.u_id,compet_2.u_id],ledgerDate:todayDate},function(err,challengLedger){
+
+//           // console.log(challengLedger[0])
+//           // console.log(challengLedger[1])
+//           // if(challengLedger[0]){
+//             // console.log(challengLedger[0].totalPerday)
+//             // console.log(Math.round(results1[0].maxLimit/30))
+//             // if(challengLedger[0].totalPerday < Math.round(results1[0].maxLimit/30)){
+//             //   console.log("1 point")
+//             // }
+//             // console.log(challengLedger[1].totalPerday)
+//             // // console.log(Math.round(results1[1].maxLimit/30))
+//             // if(challengLedger[1].totalPerday < Math.round(results1[1].maxLimit/30)){
+//             //   console.log("1 point")
+//             // }
+
+//             // Algorithm for Clash Point Declaration
+
+//             // If user1 is not entered ledger today
+//         // try{
+//           if(challengLedger[0] && challengLedger[1]){
+//             var limitPerday_1 = Math.round(compet_1.maxLimit/30)
+//             var limitPerday_2 = Math.round(compet_1.maxLimit/30)
+
+//             var percent_1 = Math.round((challengLedger[0].totalPerday / limitPerday_1)*100);
+//             var percent_2 = Math.round((challengLedger[1].totalPerday / limitPerday_2)*100);
+
+//             // if(results1[0])
+//             console.log(limitPerday_1,limitPerday_2)
+//             console.log(percent_1 + "p1",percent_2 + "p2")
+
+//             if(percent_1 < percent_2){
+//               if(limitPerday_1<challengLedger[0].totalPerday){
+//                 console.log("Person 1 - 2 point")
+//                 BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                   $inc:{user1_pt:2}
+//                 },(err,result4)=>{
+//                   if(err) throw err
+//                   console.log(result4);
+//                   console.log("2 Points added for user 1")
+//                 })
+//               }else{
+//               console.log("Person 1 - 1 point")
+//               BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                 $inc:{user1_pt:1}
+//               },(err,result4)=>{
+//                 if(err) throw err
+//                 console.log(result4);
+//                 console.log("Point added for user 1")
+//               })
+//             }
+//             }
+//            else if(percent_2 < percent_1){
+//             if(limitPerday_2<challengLedger[1].totalPerday){
+//               console.log("Person 2 - 2 point")
+//               BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                 $inc:{user2_pt:2}
+//               },(err,result4)=>{
+//                 if(err) throw err
+//                 console.log(result4);
+//                 console.log("2 Points added for user 2")
+//               })
+//             }else{
+//               console.log("Person 2 - 1 point")
+//               BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                 $inc:{user2_pt:1}
+//               },(err,result4)=>{
+//                 if(err) throw err
+//                 console.log(result4);
+//                 console.log("Point added for user 2")
+//               })
+//             }
+//             }
+//            else if(percent_1 === percent_2){
+//               console.log("Person 1 and 2 - 1 point")
+//               BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                 $inc:{user1_pt:1,user2_pt:1}
+//               },(err,result4)=>{
+//                 if(err) throw err
+//                 console.log(result4);
+//                 console.log("Point added for both")
+//               })
+//             }
+//           }
+//           // } catch(error){
+//             // console.log(error)
+//             // console.log(challengLedger[0])
+//             else if(challengLedger[0]===undefined && challengLedger[1] === undefined){
+//               console.log("NO POINTS")
+//             }
+//             // else if(challengLedger[0]===undefined && challengLedger[1]){
+//             //   if(challengLedger[1].u_id===compet_1.u_id){
+//             //     console.log("1 Point for user 2")
+//             //   }else if(challengLedger[1].u_id===compet_2.u_id){
+//             //     console.log("1 Point for user 1")
+//             //   }
+//             // }
+//             else if(challengLedger[1]===undefined && challengLedger[0]){
+//               if(challengLedger[0].u_id===compet_1.u_id){
+//                 // console.log("1 Point for user 1")
+//                 if(limitPerday_1<challengLedger[0].totalPerday){
+//                   console.log("Person 1 - 2 point")
+//                   BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                     $inc:{user1_pt:2}
+//                   },(err,result4)=>{
+//                     if(err) throw err
+//                     console.log(result4);
+//                     console.log("2 Points added for user 1")
+//                   })
+//                 }else{
+//                 BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                   $inc:{user1_pt:1}
+//                 },(err,result4)=>{
+//                   if(err) throw err
+//                   console.log(result4);
+//                   console.log("Point added for user 1")
+//                 })
+//               }
+//               }else if(challengLedger[0].u_id===compet_2.u_id){
+//                 if(limitPerday_1<challengLedger[0].totalPerday){
+//                   console.log("Person 2 - 2 point")
+//                   BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                     $inc:{user2_pt:2}
+//                   },(err,result4)=>{
+//                     if(err) throw err
+//                     console.log(result4);
+//                     console.log("2 Points added for user 2")
+//                   })
+//                 } else{
+//                 console.log("1 Point for user 2")
+//                 BudChallenge.findOneAndUpdate({challenge_id:result.challenge_id},{
+//                   $inc:{user2_pt:1}
+//                 },(err,result4)=>{
+//                   if(err) throw err
+//                   console.log(result4);
+//                   console.log("Point added for user 2")
+//                 })
+//               }
+//               }
+//             }
+//             // console.log(challengLedger[0].u_id)
+//             // console.log(compet_1.u_id)
+//             // if(challengLedger[0].totalPerday===undefined){
+//             //   console.log("1 free point for user1")
+//             // }
+//           // }
+//           // }
+//         })
+//       // })
+//     })
+//   })
+// })
+// // })

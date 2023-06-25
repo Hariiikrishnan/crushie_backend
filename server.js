@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import bodyparser from "body-parser";
 import passport from "passport";
 import cors from "cors";
-import schedule from "node-schedule";
+// import schedule from "node-schedule";
 
 import connectDB from './config/db.js'
 // import chlngPoints from './utils/chlngPoints.js'
@@ -53,9 +53,7 @@ app.use('/budgetize/users', budUserRoutes)
 
 // 58 23 * * *
 
-    schedule.scheduleJob("21 11 * * *",()=>{
-        console.log("Im Coming")
-    })
+    
 
 
 

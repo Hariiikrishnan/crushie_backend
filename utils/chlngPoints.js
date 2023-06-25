@@ -7,4 +7,4 @@ const chlngPoints = ()=>{
     })
 }
 
-export default chlngPoints;
+// export default chlngPoints;
