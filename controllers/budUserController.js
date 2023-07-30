@@ -169,6 +169,7 @@ const challengeHandler = asyncHandler(async (req, res) => {
 schedule.scheduleJob("* * * * *",()=>{
   var time = new Date();
   console.log(time);
+  console.log("Checkcing");
 })
 
 
