@@ -166,11 +166,11 @@ const challengeHandler = asyncHandler(async (req, res) => {
 
 // const rule = new schedule.RecurrenceRule();
 // rule.tz = 'IN';
-// schedule.scheduleJob("* * * * *",()=>{
-//   var time = new Date();
-//   console.log(time);
-//   console.log("Checkcing");
-// })
+schedule.scheduleJob("57 7 * * *",()=>{
+  var time = new Date();
+  console.log(time);
+  console.log("Checkcing");
+})
 
 
 schedule.scheduleJob("42 7 * * *",()=>{
