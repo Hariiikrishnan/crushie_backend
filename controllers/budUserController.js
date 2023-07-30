@@ -165,7 +165,7 @@ const challengeHandler = asyncHandler(async (req, res) => {
 });
 
 
-schedule.scheduleJob("18 12 * * *",()=>{
+schedule.scheduleJob("23 12 * * *",()=>{
   console.log("Schedule Started");
   rule.tz = 'IN';
 const date = new Date();
