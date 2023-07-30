@@ -7,6 +7,7 @@ import asyncHandler from "express-async-handler";
 import bodyparser from "body-parser";
 import passport from "passport";
 import schedule from "node-schedule";
+import nodemailer from "nodemailer";
 // import passportlocalmongoose from "passport-local-mongoose";
 
 import { fileURLToPath } from "url";
@@ -305,6 +306,42 @@ function updateUser1Point(challenge_uid,user_id,point) {
     console.log(`${point} point for user 1`)
   })
 }
+
+
+
+const transporter = nodemailer.createTransport({
+  // host: 'smtp.ethereal.email',
+  // port: 587,
+  service:"gmail",
+  auth: {
+      user: 'budgetizeyourself@gmail.com',
+      pass: 'therihari2004'
+  }
+});
+
+// async..await is not allowed in global scope, must use a wrapper
+async function main() {
+  // send mail with defined transport object
+  const info = await transporter.sendMail({
+    from: '"Fred Foo 👻" <budgetizeyourself@gmail.com>', // sender address
+    to: "chocoboihari01@gmail.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: "<b>Hello world?</b>", // html body
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  console.log(info)
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  //
+  // NOTE: You can go to https://forwardemail.net/my-account/emails to see your email delivery status and preview
+  //       Or you can use the "preview-email" npm package to preview emails locally in browsers and iOS Simulator
+  //       <https://github.com/forwardemail/preview-email>
+  //
+}
+// main().catch(console.error);
+
 
 const challengers = asyncHandler(async (req, res) => {});
 

@@ -60,6 +60,8 @@ app.use('/budgetize/users', budUserRoutes)
 
 
 app.listen(PORT, function() {
+  var nowTime = new Date();
+    console.log(nowTime.toLocaleTimeString())
     console.log("Server is running on Port: " + PORT);
   });
   
