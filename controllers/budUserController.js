@@ -166,8 +166,10 @@ const challengeHandler = asyncHandler(async (req, res) => {
 
 
 schedule.scheduleJob("58 23 * * *",()=>{
-  console.log("Schedule Started")
+  console.log("Schedule Started");
+  rule.tz = 'IN';
 const date = new Date();
+// console.log(date.to)
 var temp;
 var limitPerday_1,limitPerday_2,user1Percent,user2Percent;
 const todayDate =
