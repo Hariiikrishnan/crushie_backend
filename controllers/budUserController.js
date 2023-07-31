@@ -173,7 +173,7 @@ schedule.scheduleJob("12 8 * * *",()=>{
 })
 
 
-schedule.scheduleJob("21 8 * * *",()=>{
+schedule.scheduleJob("35 8 * * *",()=>{
   console.log("Schedule Started");
 const date = new Date();
 // console.log(date.to)
