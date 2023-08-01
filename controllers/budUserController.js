@@ -22,6 +22,7 @@ import axios from "axios";
 import { upload, p_uid } from "../utils/uploadImage.js";
 import Budget from "../models/budgetizeModel.js";
 import { error } from "console";
+import { match } from "assert";
 
 const app = express();
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -321,35 +322,180 @@ function updateUser1Point(challenge_uid,user_id,point) {
 const transporter = nodemailer.createTransport({
   // host: 'smtp.ethereal.email',
   // port: 587,
+  host: 'mail.test.com',
+    port: 465,
+    secure: true,
   service:"gmail",
+  transportMethod: 'SMTP',
   auth: {
       user: 'budgetizeyourself@gmail.com',
-      pass: 'therihari2004'
+      pass: process.env.GMAIL_PASSWORD
   }
 });
 
 // async..await is not allowed in global scope, must use a wrapper
-async function main() {
+async function main(to_Users) {
   // send mail with defined transport object
   const info = await transporter.sendMail({
-    from: '"Fred Foo 👻" <budgetizeyourself@gmail.com>', // sender address
-    to: "chocoboihari01@gmail.com", // list of receivers
-    subject: "Hello ✔", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    from: '"Budgetize" <budgetizeyourself@gmail.com>', // sender address
+    to: to_Users, // list of receivers
+    subject: "Friendly Challenge Result", // Subject line
+    text: `You've won the Friendly Challenge with your friend .`, // plain text body
+    html: `<div style="width: 100%;
+    height: 100%;
+    border: solid rebeccapurple;">
+        <div style="height: 300px;
+    display: grid;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #00ffcc;
+    border-radius: 6px;
+    margin: 30px;
+    padding: 10px 30px;">
+            <h2 style="font-family: system-ui;text-align: center;"> Budgetize Friendly Challenge Result !  &#128512;</h2>
+            <h3 style="font-family: system-ui;text-align: center;">&#129395; You've won the friendly challenge with your friend!</h3>
+            <h3 style="font-family: system-ui;text-align: center;">&#127881; Congratulations on your winning! I hope we made you to reduce your expenses in this challenge with your friends. Let's get start the next challenge!</h3>
+
+            <button style="background-color: black;
+            padding: 10px 40px;
+            border: solid cornsilk;
+            border-radius: 9px;
+            text-align: center;">
+        
+                        <a style="color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-family: system-ui;"
+             href="https://budgetize.netlify.app/login">Start Challenge &#128074;</a>
+            </button>
+        </div>
+    </div>`, // html body
   });
 
   console.log("Message sent: %s", info.messageId);
   console.log(info)
   // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
 
+  
   //
-  // NOTE: You can go to https://forwardemail.net/my-account/emails to see your email delivery status and preview
-  //       Or you can use the "preview-email" npm package to preview emails locally in browsers and iOS Simulator
-  //       <https://github.com/forwardemail/preview-email>
+}
+async function loser_mailing(to_Users) {
+console.log("what happen");
+  // send mail with defined transport object
+  const info = await transporter.sendMail({
+    from: '"Budgetize" <budgetizeyourself@gmail.com>', // sender address
+    to: to_Users, // list of receivers
+    subject: "Friendly Challenge Result", // Subject line
+    text: `You've lost the Friendly Challenge with your friend .`, // plain text body
+    html: `<div style="width: 100%;
+    height: 100%;
+    border: solid rebeccapurple;">
+        <div style="height: 300px;
+    display: grid;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: #00ffcc;
+    border-radius: 6px;
+    margin: 30px;
+    padding: 10px 30px;">
+            <h2 style="font-family: system-ui;text-align: center;"> Budgetize Friendly Challenge Result !  &#128512;</h2>
+            <h3 style="font-family: system-ui;text-align: center;">&#9785; You've lost the friendly challenge with your friend!</h3>
+            <h3 style="font-family: system-ui;text-align: center;">&#128531; We apologize that you lost the friendly challenge with your friend. We hope for better results next time. Let's get start the next challenge!</h3>
+
+            <button style="background-color: black;
+            padding: 10px 40px;
+            border: solid cornsilk;
+            border-radius: 9px;
+            text-align: center;">
+        
+                        <a style="color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-family: system-ui;"
+             href="https://budgetize.netlify.app/login">Start Challenge &#128074;</a>
+            </button>
+        </div>
+    </div>`, // html body
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  console.log(info)
+  // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
+
+  
   //
 }
 // main().catch(console.error);
+
+
+
+// Schedule for Monthly winner announcement mail API.
+
+// 58 23 31 * * - 
+
+// var date = new Date();
+// var currentMonth = date.getMonth()+1;
+// console.log(currentMonth);
+
+
+// Scheduler to check the winner of all the challenges and send mail on 30th of every month at 23:58 PM
+schedule.scheduleJob("28 18 30 * *",()=>{
+
+  console.log("Schedule started for challenge winner announcement");
+  BudChallenge.find({winner:''},(err,challenges)=>{
+    if(err) throw err
+  
+    // console.log(challenges);
+    var match_winner ;
+    var winners_mailID = [] ;
+    var match_loser ;
+    var losers_mailID = [] ;
+  
+    challenges.map((challenge)=>{
+  
+        if (challenge.user2_pt < challenge.user1_pt){
+          // console.log("User 1 winner");
+          match_winner = challenge.user1;
+          match_loser = challenge.user2;
+          // console.log(match_winner)
+          // console.log(match_loser)
+        }else if(challenge.user1_pt < challenge.user2_pt){
+          // console.log("User 2 winner");
+          match_winner = challenge.user2;
+          match_loser = challenge.user1;
+          // console.log(match_winner)
+          // console.log(match_loser)
+        }else if(challenge.user1_pt === challenge.user2_pt){
+          console.log("Match drawn");
+        }
+
+        BudChallenge.findOneAndUpdate({challenge_id:challenge.challenge_id},{winner:match_winner},(err,result)=>{
+          if (err) throw err
+          console.log(result);
+        });
+
+
+      BudUser.find({u_id:[match_winner,match_loser]},(err,challenged_users)=>{
+        if (err) throw err
+  
+        // console.log(challenged_users)
+          if(challenged_users[0].u_id===match_winner && challenged_users[1].u_id===match_loser){
+            // console.log("returned winner  "+challenged_users[0].email);
+            winners_mailID.push(challenged_users[0].email);
+          
+            // console.log("returned loser  " +challenged_users[1].email);
+            losers_mailID.push(challenged_users[1].email);
+
+           
+          }
+       
+      })
+    })
+    main(winners_mailID).catch(console.error);
+    loser_mailing(losers_mailID).catch(console.error);
+  })
+  
+})
 
 
 const challengers = asyncHandler(async (req, res) => {});
