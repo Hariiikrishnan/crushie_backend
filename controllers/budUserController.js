@@ -125,11 +125,11 @@ const fetchChallenges = asyncHandler(async (req,res)=>{
   
   var challenges = req.params.challenge_id.split(",",4);
   
-  // console.log(challenges);
+  console.log(challenges);
   BudChallenge.find({challenge_id:challenges},(err,results)=>{
     if (err) throw err
 
-    // console.log(results);
+    console.log(results);
     res.json({results:results})
   })
 })
