@@ -6,6 +6,8 @@ const budChallengeSchema = new mongoose.Schema({
     start_date:String,
     user1:String,
     user2:String,
+    user1Name:String,
+    user2Name:String,
     user1_pt:Number,
     user2_pt:Number,
     winner:String,

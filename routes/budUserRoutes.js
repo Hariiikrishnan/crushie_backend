@@ -5,7 +5,7 @@ import {upload} from "../utils/uploadImage.js"
 import {
     authUser,
     registerUser,
-    
+    fetchChallenges,
     challengeHandler
 } from '../controllers/budUserController.js'
 
@@ -21,6 +21,7 @@ import {
 
 
 app.post("/challenge",challengeHandler);
+app.get("/challenges/:challenge_id",fetchChallenges);
 
 app.post("/login",authUser);
 app.post("/register",upload.single("profilePhoto"),registerUser);

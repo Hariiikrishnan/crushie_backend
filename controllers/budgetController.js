@@ -53,11 +53,8 @@ const createBudget = asyncHandler(async (req, res) => {
   const totalPerday = req.body.totalPerDay;
   const ledgerDate = req.body.ledgerDate;
 
-
-  var point = 0; 
-  if(ledgerDate.slice(5,7)===todayDate.getMonth()+1){
-    point = 1;
-  }
+  console.log(ledgerDate);
+ 
   const budget = new Budget({
     // createdTime:createdTime,
     u_id: req.params.u_id,
@@ -94,32 +91,56 @@ const createBudget = asyncHandler(async (req, res) => {
       // );
       
     }else {
+        var alteredLedgerDate = ledgerDate[9] + '-' + ledgerDate[6] + '-' + ledgerDate.slice(0,4);
+        todayDate = todayDate.toLocaleDateString().split('/',4).join('-');
 
-      BudUser.findOneAndUpdate(
-        { u_id: req.params.u_id },
-        { $inc: { currentAmount: req.body.totalPerDay } },
-        { new: true, useFindAndModify: false },
-        function (err, result) {
-          if (err) {
-            console.log(err);
-          } else {          
-            // console.log(result);
-            // console.log("incremented");
-          }
-        }
-      );
+        if( alteredLedgerDate[2] === todayDate[2] &&  alteredLedgerDate.slice(4,8) === todayDate.slice(4,8)  ){
+          console.log("This year this month");
+
+          BudUser.findOneAndUpdate(
+            { u_id: req.params.u_id },
+            { $inc: { currentAmount: req.body.totalPerDay } },
+            { new: true, useFindAndModify: false },
+            function (err, result2) {
+              if (err) {
+                console.log(err);
+              } else {          
+                // console.log(result2);
+                // console.log("incremented");
+
+                res.json({updatedUser:result2,result:result})
+              }
+            }
+          );
+      }
+      else{
+
+        res.json({result:result});
+      }
+    
 
       // console.log(result);
-      res.json(result);
     }
   });
 });
 
 const deleteLedger = asyncHandler(async (req, res) => {
+  var todayDate = new Date();
+
+
   const id = req.params.id;
   const totAm = req.params.totAm;
 
-  // console.log(totAm);
+  const selectedDate = req.params.selectedDate;
+
+  var alteredLedgerDate = selectedDate[9] + '-' + selectedDate[6] + '-' + selectedDate.slice(0,4);
+  todayDate = todayDate.toLocaleDateString().split('/',4).join('-');
+
+  console.log(alteredLedgerDate);
+  console.log(todayDate);
+
+  if( alteredLedgerDate[2] === todayDate[2] &&  alteredLedgerDate.slice(4,8) === todayDate.slice(4,8)  ){
+    console.log("This year this month");
 
     BudUser.findOneAndUpdate({u_id:req.params.u_id},
       { $inc: { currentAmount:-totAm} },
@@ -132,6 +153,7 @@ const deleteLedger = asyncHandler(async (req, res) => {
          console.log("decremented")
        }
      })
+    }
     Budget.deleteOne({ _id: id, u_id: req.params.u_id }, function (err) {
       if (err) {
         console.log(err);

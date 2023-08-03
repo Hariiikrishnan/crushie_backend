@@ -50,36 +50,36 @@ const authUser = asyncHandler(async (req, res) => {
             if (err) {
               console.log(err);
             } else {
-              if (
-                result.challenger == "none" ||
-                result.challenger == "requested"
-              ) {
+              // if (
+              //   result.challenger == "none" ||
+              //   result.challenger == "requested"
+              // ) {
                 res.json({ token: token, user: result });
-              } else {
-                BudUser.find(
-                  { username: result.challenger },
-                  function (err2, result2) {
-                    if (err2) {
-                      console.log("Error in 2nd phase of controller", err2);
-                    }
-                    BudChallenge.findOne(
-                      { challenge_id: result.challenge_id },
-                      function (err3, result3) {
-                        if (err3) {
-                          console.log(err3);
-                        }
-                        res.json({
-                          msg: "sucess",
-                          token: token,
-                          user: result,
-                          challenger: result2,
-                          challengeData: result3,
-                        });
-                      }
-                    );
-                  }
-                );
-              }
+              // } else {
+              //   BudUser.find(
+              //     { username: result.challenger },
+              //     function (err2, result2) {
+              //       if (err2) {
+              //         console.log("Error in 2nd phase of controller", err2);
+              //       }
+              //       BudChallenge.findOne(
+              //         { challenge_id: result.challenge_id },
+              //         function (err3, result3) {
+              //           if (err3) {
+              //             console.log(err3);
+              //           }
+              //           res.json({
+              //             msg: "sucess",
+              //             token: token,
+              //             user: result,
+              //             challenger: result2,
+              //             challengeData: result3,
+              //           });
+              //         }
+              //       );
+              //     }
+              //   );
+              // }
             }
           });
         });
@@ -97,7 +97,7 @@ const registerUser = asyncHandler(async (req, res) => {
       email: req.body.email,
       maxLimit: req.body.maxLimit,
       currentAmount: 0,
-      challenger: "none",
+      challenge_id:[]
     },
     req.body.password,
     function (err, user) {
@@ -116,14 +116,31 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 });
 
+
+
 // Friendly Challenge Handlers
+
+
+const fetchChallenges = asyncHandler(async (req,res)=>{
+  
+  var challenges = req.params.challenge_id.split(",",4);
+  
+  // console.log(challenges);
+  BudChallenge.find({challenge_id:challenges},(err,results)=>{
+    if (err) throw err
+
+    // console.log(results);
+    res.json({results:results})
+  })
+})
+
 
 const challengeHandler = asyncHandler(async (req, res) => {
   const id = uuidv4();
   console.log(req.body);
   BudUser.findOneAndUpdate(
     { username: req.body.u_id1 },
-    { challenger: req.body.u_id2, challenge_id: id },
+    {  $push:{ challenge_id: id } },
     { new: true, useFindAndModify: false },
     function (err1, result1) {
       if (err1) {
@@ -132,7 +149,7 @@ const challengeHandler = asyncHandler(async (req, res) => {
       // res.json(result)
       BudUser.findOneAndUpdate(
         { username: req.body.u_id2 },
-        { challenger: req.body.u_id1, challenge_id: id },
+        { $push:{ challenge_id: id }},
         { new: true, useFindAndModify: false },
         function (err2, result2) {
           if (err2) {
@@ -145,6 +162,8 @@ const challengeHandler = asyncHandler(async (req, res) => {
             start_date: date,
             user1: result1.u_id,
             user2: result2.u_id,
+            user1Name: req.body.u_id1,
+            user2Name: req.body.u_id2,
             user1_pt: 0,
             user2_pt: 0,
             winner: "",
@@ -500,7 +519,7 @@ schedule.scheduleJob("28 18 30 * *",()=>{
 
 const challengers = asyncHandler(async (req, res) => {});
 
-export { authUser, registerUser, challengeHandler };
+export { authUser, registerUser,fetchChallenges, challengeHandler };
 
 // oAuth Implementations
 
