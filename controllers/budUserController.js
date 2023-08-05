@@ -8,6 +8,7 @@ import bodyparser from "body-parser";
 import passport from "passport";
 import schedule from "node-schedule";
 import nodemailer from "nodemailer";
+import multer from "multer";
 // import passportlocalmongoose from "passport-local-mongoose";
 
 import { fileURLToPath } from "url";
@@ -20,6 +21,7 @@ import axios from "axios";
 // import SnapchatStrategy from "passport-snapchat";
 
 import { upload, p_uid } from "../utils/uploadImage.js";
+import uploadToCloudinary from "../utils/cloudinaryUpload.js";
 import Budget from "../models/budgetizeModel.js";
 import { error } from "console";
 import { match } from "assert";
@@ -50,36 +52,8 @@ const authUser = asyncHandler(async (req, res) => {
             if (err) {
               console.log(err);
             } else {
-              // if (
-              //   result.challenger == "none" ||
-              //   result.challenger == "requested"
-              // ) {
                 res.json({ token: token, user: result });
-              // } else {
-              //   BudUser.find(
-              //     { username: result.challenger },
-              //     function (err2, result2) {
-              //       if (err2) {
-              //         console.log("Error in 2nd phase of controller", err2);
-              //       }
-              //       BudChallenge.findOne(
-              //         { challenge_id: result.challenge_id },
-              //         function (err3, result3) {
-              //           if (err3) {
-              //             console.log(err3);
-              //           }
-              //           res.json({
-              //             msg: "sucess",
-              //             token: token,
-              //             user: result,
-              //             challenger: result2,
-              //             challengeData: result3,
-              //           });
-              //         }
-              //       );
-              //     }
-              //   );
-              // }
+             
             }
           });
         });
@@ -88,14 +62,40 @@ const authUser = asyncHandler(async (req, res) => {
   });
 });
 
+function buildSuccessMsg(urlList){
+
+  console.log(urlList);
+  // // Building success msg
+  // var response = '<h1><a href="/">Click to go to Home page</a><br></h1><hr>'
+  
+  // for(var i=0;i<urlList.length;i++){
+  //   response += "File uploaded successfully.<br><br>"
+  //   response += `FILE URL: <a href="${urlList[i]}">${urlList[i]}</a>.<br><br>`
+  //   response += `<img src="${urlList[i]}" /><br><hr>`
+  // }
+  // response += `<br><p>Now you can store this url in database or do anything with it  based on use case.</p>`
+  return response  
+}
+
+
+
 const registerUser = asyncHandler(async (req, res) => {
-  console.log(req.body);
+
+   var locaFilePath = req.file.path
+  var result = await uploadToCloudinary(locaFilePath)
+  // var response = buildSuccessMsg([result.url])
+  // return res.send(response)
+
+  console.log("doing here");
+  console.log(result.url);
+  // console.log(req.body);
   BudUser.register(
     {
       u_id: p_uid,
       username: req.body.username,
       email: req.body.email,
       maxLimit: req.body.maxLimit,
+      profileUrl:result.url,
       currentAmount: 0,
       challenge_id:[]
     },
@@ -164,6 +164,8 @@ const challengeHandler = asyncHandler(async (req, res) => {
             user2: result2.u_id,
             user1Name: req.body.u_id1,
             user2Name: req.body.u_id2,
+            user1Pfp:result1.profileUrl,
+            user2Pfp:result2.profileUrl,
             user1_pt: 0,
             user2_pt: 0,
             winner: "",

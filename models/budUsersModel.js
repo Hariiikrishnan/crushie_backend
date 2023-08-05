@@ -14,9 +14,10 @@ const userschema = new mongoose.Schema({
   email: String,
   username: String,
   password: String,
+  profileUrl:String,
   maxLimit:Number,
   currentAmount:Number,
-  challenge_id:Array
+  challenge_id:Array,
 });
 userschema.plugin(passportlocalmongoose);
 userschema.plugin(findOrCreate);

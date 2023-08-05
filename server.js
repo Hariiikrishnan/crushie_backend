@@ -5,8 +5,12 @@ import bodyparser from "body-parser";
 import passport from "passport";
 import cors from "cors";
 // import schedule from "node-schedule";
+import path, { dirname } from "path";
+import multer from "multer";
 
 import connectDB from './config/db.js'
+import connectCloudinary from './config/cloudinary.js'
+
 // import chlngPoints from './utils/chlngPoints.js'
 
 import userRoutes from './routes/userRoutes.js'
@@ -20,7 +24,8 @@ import budUserRoutes from './routes/budUserRoutes.js'
 import budgetProfile from './routes/budgetProfile.js'
 
 dotenv.config()
-connectDB()
+connectDB();
+connectCloudinary();
 const app = express()
 const PORT = process.env.PORT || 3001;
 app.set("view engine","ejs");
@@ -59,8 +64,7 @@ app.use('/budgetize/users', budUserRoutes)
 
 
 
-app.listen(PORT, function() {
-
+app.listen(PORT, function(req,res) {
     console.log("Server is running on Port: " + PORT);
   });
   

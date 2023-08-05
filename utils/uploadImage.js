@@ -2,6 +2,11 @@ import multer from "multer";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
+
+import cloudinary from "cloudinary";
+
+
+
 var p_uid ;
 
 const storage = multer.diskStorage({
@@ -10,8 +15,8 @@ const storage = multer.diskStorage({
     },
     filename:(req,file,cb)=>{
         p_uid = uuidv4() 
-        console.log(p_uid)
-        console.log(file)
+        // console.log(p_uid)
+        // console.log(file)
         // cb(null,p_uid+path.extname(file.originalname))
         cb(null,p_uid+".jpg")
     }
