@@ -124,13 +124,26 @@ const registerUser = asyncHandler(async (req, res) => {
 const fetchChallenges = asyncHandler(async (req,res)=>{
   
   var challenges = req.params.challenge_id.split(",",4);
+  var active = [];
+  var completed = [];
   
-  console.log(challenges);
+  // console.log(challenges);
   BudChallenge.find({challenge_id:challenges},(err,results)=>{
     if (err) throw err
 
-    console.log(results);
-    res.json({results:results})
+    // console.log(results);
+    results.map((challenge)=>{
+      if(challenge.winner === ""){
+        active.push(challenge);
+      }else{
+        
+        completed.push(challenge);
+      }
+    });
+
+    console.log(active);
+    console.log(completed);
+    res.json({active:active,completed:completed})
   })
 })
 
@@ -186,14 +199,9 @@ const challengeHandler = asyncHandler(async (req, res) => {
   );
 });
 
-// const rule = new schedule.RecurrenceRule();
-// rule.tz = 'IN';
-// schedule.scheduleJob("15 10 * * *",()=>{
-//   var time = new Date();
-//   console.log(time);
-//   console.log("Checkcing");
-// })
 
+// Used 18 because digital ocean server is 6 hours ahead of indian time.
+// 28 18 * * *
 
 schedule.scheduleJob("28 18 * * *",()=>{
   console.log("Schedule Started");
@@ -205,15 +213,14 @@ const todayDate =
   date.getFullYear() +
   "-" +
   ("0" + (date.getMonth() + 1).toString().slice(-2)) +
-  "-" +
-  date.getDate();
+  "-" + (date.getDate() < 10  ? ( "0" +  date.getDate() ) : date.getDate() );
 
+  console.log(todayDate);
 
-BudChallenge.find({}, function (err, challenges) {
+BudChallenge.find({winner:""}, function (err, challenges) {
   if (err) {
     console.log(err);
   } else {
-   
     challenges.map((challenge) => {
       BudUser.find(
         { challenge_id: challenge.challenge_id },
@@ -221,26 +228,30 @@ BudChallenge.find({}, function (err, challenges) {
           if (err2) throw err2;
         
 
-          // Algorithm for challenge points declaration system.!!
+          try{
+
+            // Algorithm for challenge points declaration system.!!
           if(challenge.user1===challengedUsers[0].u_id){
             console.log("ivandhaan");
           }else if(challenge.user1===challengedUsers[1].u_id){
-              console.log("should swap")
-            temp=challengedUsers[1];
-            challengedUsers[1]=challengedUsers[0];
+              // console.log("should swap")
+              console.log(challenge);
+              // console.log(challengedUsers[1]);
+              temp=challengedUsers[1];
+              challengedUsers[1]=challengedUsers[0];
             challengedUsers[0]=temp;
             
              limitPerday_1 = challengedUsers[0].maxLimit/30;
              limitPerday_2 = challengedUsers[1].maxLimit/30;
-     
-            Budget.find(
-                {
-                    u_id: [challengedUsers[0].u_id, challengedUsers[1].u_id],
-                    ledgerDate: todayDate,
-                  },
+             
+             Budget.find(
+               {
+                 u_id: [challengedUsers[0].u_id, challengedUsers[1].u_id],
+                 ledgerDate: todayDate,
+                },
                   function (err3, todayLedgers) {
                       if (err3) throw err3;
-                 
+                      
                       if (
                           todayLedgers.length === 0 &&
                           (todayLedgers[0]===undefined &&
@@ -250,6 +261,7 @@ BudChallenge.find({}, function (err, challenges) {
                           } else if(todayLedgers[1]===undefined && todayLedgers[0]){
                             if(todayLedgers[0].u_id===challenge.user1){
                               if(todayLedgers[0].totalPerday < limitPerday_1){
+                    
                                 console.log("1 free and 1 winning point user 1 raa")
                                 updateUser1Point(challenge.challenge_id,todayLedgers[0].u_id,2)
                               }else if(todayLedgers[0].totalPerday > limitPerday_1){ 
@@ -309,7 +321,10 @@ BudChallenge.find({}, function (err, challenges) {
                                 }
                               );
           }
-
+}
+catch(err){
+  console.log(err);
+}
         }
       );
     });
@@ -454,24 +469,21 @@ console.log("what happen");
 
 // 58 23 31 * * - 
 
-// var date = new Date();
-// var currentMonth = date.getMonth()+1;
-// console.log(currentMonth);
-
 
 // Scheduler to check the winner of all the challenges and send mail on 30th of every month at 23:58 PM
 schedule.scheduleJob("28 18 30 * *",()=>{
 
   console.log("Schedule started for challenge winner announcement");
+  var match_winner ;
+  var winners_mailID = [] ;
+  var match_loser ;
+  var losers_mailID = [] ;
   BudChallenge.find({winner:''},(err,challenges)=>{
     if(err) throw err
   
     // console.log(challenges);
-    var match_winner ;
-    var winners_mailID = [] ;
-    var match_loser ;
-    var losers_mailID = [] ;
   
+    // console.log(challenges);
     challenges.map((challenge)=>{
   
         if (challenge.user2_pt < challenge.user1_pt){
@@ -492,31 +504,45 @@ schedule.scheduleJob("28 18 30 * *",()=>{
 
         BudChallenge.findOneAndUpdate({challenge_id:challenge.challenge_id},{winner:match_winner},(err,result)=>{
           if (err) throw err
-          console.log(result);
+          // console.log(result);
         });
 
+        // console.log(match_winner);
+        // console.log(match_loser);
 
       BudUser.find({u_id:[match_winner,match_loser]},(err,challenged_users)=>{
         if (err) throw err
   
-        // console.log(challenged_users)
-          if(challenged_users[0].u_id===match_winner && challenged_users[1].u_id===match_loser){
-            // console.log("returned winner  "+challenged_users[0].email);
-            winners_mailID.push(challenged_users[0].email);
+        if(challenged_users[0].u_id===match_winner && challenged_users[1].u_id===match_loser){
+          // console.log("returned winner  "+challenged_users[0].email);
+          winners_mailID.push(challenged_users[0].email);
           
-            // console.log("returned loser  " +challenged_users[1].email);
-            losers_mailID.push(challenged_users[1].email);
-
-           
+          // console.log("returned loser  " +challenged_users[1].email);
+          losers_mailID.push(challenged_users[1].email);
+          
+          
+        }else{
+          // console.log(challenged_users[0].email);
+            // console.log(challenged_users[1].email);
+            winners_mailID.push(challenged_users[1].email);
+            losers_mailID.push(challenged_users[0].email);
           }
        
       })
     })
+
+  //  setTimeout(()=>{
+  //   console.log(winners_mailID);
+  //   console.log(losers_mailID);
+  //  },2000)
+    
+  //  setTimeout(()=>{
     main(winners_mailID).catch(console.error);
     loser_mailing(losers_mailID).catch(console.error);
+  //  },30000)
   })
   
-})
+});
 
 
 const challengers = asyncHandler(async (req, res) => {});
