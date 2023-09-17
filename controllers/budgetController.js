@@ -47,7 +47,7 @@ const getSearchedLedger = asyncHandler(async (req, res) => {
 const createBudget = asyncHandler(async (req, res) => {
   var todayDate = new Date();
   // todayDate = todayDate.slice(0,3);
-  console.log(req.params.u_id);
+  // console.log(req.params.u_id);
 
   const expenses = req.body.expenses;
   const totalPerday = req.body.totalPerDay;
@@ -91,9 +91,11 @@ const createBudget = asyncHandler(async (req, res) => {
       // );
       
     }else {
-        var alteredLedgerDate = ledgerDate[9] + '-' + ledgerDate[6] + '-' + ledgerDate.slice(0,4);
+        var alteredLedgerDate = ledgerDate.slice(8,10) + '-' + ledgerDate[6] + '-' + ledgerDate.slice(0,4);
         todayDate = todayDate.toLocaleDateString().split('/',4).join('-');
 
+        console.log(alteredLedgerDate);
+        console.log(todayDate);
         if( alteredLedgerDate[2] === todayDate[2] &&  alteredLedgerDate.slice(4,8) === todayDate.slice(4,8)  ){
           console.log("This year this month");
 
@@ -133,14 +135,14 @@ const deleteLedger = asyncHandler(async (req, res) => {
 
   const selectedDate = req.params.selectedDate;
 
-  var alteredLedgerDate = selectedDate[9] + '-' + selectedDate[6] + '-' + selectedDate.slice(0,4);
+  var alteredLedgerDate = selectedDate.slice(8,10) + '-' + selectedDate[6] + '-' + selectedDate.slice(0,4);
   todayDate = todayDate.toLocaleDateString().split('/',4).join('-');
 
   console.log(alteredLedgerDate);
   console.log(todayDate);
 
   if( alteredLedgerDate[2] === todayDate[2] &&  alteredLedgerDate.slice(4,8) === todayDate.slice(4,8)  ){
-    console.log("This year this month");
+    console.log("This year this month in delete");
 
     BudUser.findOneAndUpdate({u_id:req.params.u_id},
       { $inc: { currentAmount:-totAm} },

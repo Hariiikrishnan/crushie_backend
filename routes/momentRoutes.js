@@ -1,5 +1,5 @@
 import express from "express";
-import verifyToken from "../utils/verifyToken.js";
+import {verifyToken} from "../utils/verifyToken.js";
 const app = express();
 
 import {

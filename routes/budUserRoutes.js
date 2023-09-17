@@ -6,8 +6,11 @@ import {
     authUser,
     registerUser,
     fetchChallenges,
-    challengeHandler
-} from '../controllers/budUserController.js'
+    challengeHandler,
+    checkJwtExpiration
+} from '../controllers/budUserController.js';
+import {verifyToken,verifyRefreshToken} from "../utils/verifyToken.js";
+import {generateNewToken} from "../utils/generateToken.js";
 
 
 
@@ -25,6 +28,8 @@ app.post("/challenge",challengeHandler);
 app.get("/challenges/:challenge_id",fetchChallenges);
 
 app.post("/login",authUser);
+app.post("/checkJwt",checkJwtExpiration);
+app.post("/refreshToken",verifyToken,generateNewToken);
 app.post("/register",upload.single("profilePhoto"),registerUser);
 
 export default app;

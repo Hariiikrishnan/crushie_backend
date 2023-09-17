@@ -47,36 +47,42 @@ const authUser = asyncHandler(async (req, res) => {
       return;
     } else {
       passport.authenticate("local")(req, res, function () {
-        jwt.sign({ user }, process.env.SECRETKEY, (err, token) => {
-          BudUser.findOne({ username: username }, function (err, result) {
-            if (err) {
-              console.log(err);
-            } else {
-                res.json({ token: token, user: result });
-             
-            }
-          });
+        var accessToken = jwt.sign({ user }, process.env.SECRETKEY, {expiresIn:"14m"});
+        var refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRETKEY, {expiresIn:"10d"});
+        
+        BudUser.findOne({ username: username }, function (err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+              res.json({ token: accessToken,refreshToken:refreshToken, user: result });
+           
+          }
         });
+        
       });
     }
   });
 });
 
-function buildSuccessMsg(urlList){
+const checkJwtExpiration = asyncHandler( async(req,res)=>{
+    // console.log(req.body);
+    var token = req.body;
+    // console.log(token);
 
-  console.log(urlList);
-  // // Building success msg
-  // var response = '<h1><a href="/">Click to go to Home page</a><br></h1><hr>'
-  
-  // for(var i=0;i<urlList.length;i++){
-  //   response += "File uploaded successfully.<br><br>"
-  //   response += `FILE URL: <a href="${urlList[i]}">${urlList[i]}</a>.<br><br>`
-  //   response += `<img src="${urlList[i]}" /><br><hr>`
-  // }
-  // response += `<br><p>Now you can store this url in database or do anything with it  based on use case.</p>`
-  return response  
-}
+    jwt.verify(token.token,process.env.SECRETKEY,(err,tokenDetails)=>{
+      if(err){
+        console.log(err.message);
+        // res.sendStatus(403);
+        res.json({msg:"Jwt Expired"})
+        // console.log("expired");
+      }else{
+        console.log("Valid");
+        res.json({msg:"Jwt Valid"})
+        // res.json({tokenDetails,message:"Valid Token"})
+      }
+    })
 
+});
 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -547,7 +553,7 @@ schedule.scheduleJob("28 18 30 * *",()=>{
 
 const challengers = asyncHandler(async (req, res) => {});
 
-export { authUser, registerUser,fetchChallenges, challengeHandler };
+export { authUser, registerUser,fetchChallenges, challengeHandler , checkJwtExpiration};
 
 // oAuth Implementations
 
