@@ -33,6 +33,11 @@ app.use(bodyparser.urlencoded({extended:true}));
 
 // app.use(cors({credentials:true,origin:"https://crushie-moments.netlify.app/" || "http://localhost:3000"}));
 app.use(cors()); 
+app.use(function(req,res,next){
+  res.setHeader('Access-Control-Allow-Origin','*');
+  next();
+})
+
 app.use(express.json());
 app.use(session({
     secret:process.env.SECRETKEY ,
