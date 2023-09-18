@@ -31,7 +31,7 @@ const PORT = process.env.PORT || 3001;
 app.set("view engine","ejs");
 app.use(bodyparser.urlencoded({extended:true}));
 
-app.use(cors({credentials:true,origin:"https://budgetize.netlify.app/" || "http://localhost:3000"}));
+app.use(cors({credentials:true,origin:"https://budgetize.netlify.app" || "http://localhost:3000"}));
 
 
 // app.use(cors()); 
