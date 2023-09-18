@@ -25,7 +25,7 @@ import {generateNewToken} from "../utils/generateToken.js";
 
 
 app.post("/challenge",challengeHandler);
-app.get("/challenges/:challenge_id",fetchChallenges);
+app.get("/challenges/:challenge_id",verifyToken,fetchChallenges);
 
 app.post("/login",authUser);
 app.post("/checkJwt",checkJwtExpiration);
