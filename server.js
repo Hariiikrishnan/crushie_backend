@@ -31,14 +31,15 @@ const PORT = process.env.PORT || 3001;
 app.set("view engine","ejs");
 app.use(bodyparser.urlencoded({extended:true}));
 
-app.use(cors({credentials:true,origin:"https://budgetize.netlify.app" || "http://localhost:3000"}));
+// app.use(cors({credentials:true,origin:"https://budgetize.netlify.app" || "http://localhost:3000"}));
 
 
-// app.use(cors()); 
-// app.use(function(req,res,next){
-//   res.setHeader('Access-Control-Allow-Origin','*');
-//   next();
-// })
+app.use(cors()); 
+app.use(function (request, response, next) {
+  response.header("Access-Control-Allow-Origin", "*");
+  response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 app.use(express.json());
 app.use(session({
