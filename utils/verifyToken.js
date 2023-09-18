@@ -6,15 +6,15 @@ import jwt from "jsonwebtoken";
 
     // console.log(req.headers.authorization);
     var bearerHeader;
-    // if(req.body.headers){
-      // bearerHeader = req.body.headers.Authorization;
+    if(req.body.headers){
+      bearerHeader = req.body.headers.Authorization;
       // console.log(bearerHeader);
       // console.log("here")
-    // } else{
-      // bearerHeader = req.headers['authorization'];
+    } else{
+      bearerHeader = req.headers['authorization'];
       // console.log("here..1")
-     // console.log(bearerHeader);
-  //  }
+    //  console.log(bearerHeader);
+   }
 
 
     if(typeof bearerHeader!=="undefined"){
@@ -53,7 +53,7 @@ import jwt from "jsonwebtoken";
           console.log(err);
           res.sendStatus(403);
         }else{
-          console.log("Valid");
+          console.log("Valid in refReshToken");
           req.userDetails = tokenDetails;
           // console.log(req);
           // console.log(tokenDetails);

@@ -133,6 +133,7 @@ const fetchChallenges = asyncHandler(async (req,res)=>{
   var active = [];
   var completed = [];
   
+  console.log("inge");
   // console.log(challenges);
   BudChallenge.find({challenge_id:challenges},(err,results)=>{
     if (err) throw err
@@ -147,8 +148,8 @@ const fetchChallenges = asyncHandler(async (req,res)=>{
       }
     });
 
-    console.log(active);
-    console.log(completed);
+    // console.log(active);
+    // console.log(completed);
     res.json({active:active,completed:completed})
   })
 })
