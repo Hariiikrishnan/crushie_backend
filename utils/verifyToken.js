@@ -4,18 +4,17 @@ import jwt from "jsonwebtoken";
 // Verify Access Token
   function verifyToken(req,res,next){
 
-    // console.log(req.headers.authorization);
+    console.log(req.headers.authorization);
     var bearerHeader;
-    if(req.body.headers){
-      bearerHeader = req.body.headers.Authorization;
-      // console.log(bearerHeader);
-      // console.log("here")
-    } else{
-      bearerHeader = req.headers['authorization'];
-      // console.log("here..1")
-    //  console.log(bearerHeader);
-   }
-
+    // if(req.body.headers){
+    //   bearerHeader = req.body.headers.Authorization;
+      
+    // } else{
+    //   bearerHeader = req.headers['authorization'];
+      
+    // }
+    
+    bearerHeader = req.headers['authorization'];
 
     if(typeof bearerHeader!=="undefined"){
       const bearer = bearerHeader.split(" ");
