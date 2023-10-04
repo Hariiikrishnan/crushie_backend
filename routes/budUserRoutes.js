@@ -28,7 +28,7 @@ app.post("/challenge",challengeHandler);
 app.get("/challenges/:challenge_id",verifyToken,fetchChallenges);
 
 app.post("/login",authUser);
-app.post("/checkJwt",checkJwtExpiration);
+// app.post("/checkJwt",verifyToken,checkJwtExpiration);
 app.post("/refreshToken",verifyToken,generateNewToken);
 app.post("/register",upload.single("profilePhoto"),registerUser);
 

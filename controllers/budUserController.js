@@ -65,23 +65,26 @@ const authUser = asyncHandler(async (req, res) => {
 });
 
 const checkJwtExpiration = asyncHandler( async(req,res)=>{
-    // console.log(req.body);
-    var token = req.body;
-    // console.log(token);
+    // console.log(req.headers['authorization']);
+    // // var token = req.headers;
+    // // console.log(token);
 
-    jwt.verify(token.token,process.env.SECRETKEY,(err,tokenDetails)=>{
-      if(err){
-        console.log(err.message);
-        // res.sendStatus(403);
-        res.json({msg:"Jwt Expired"})
-        // console.log("expired");
-      }else{
-        console.log("Valid");
-        res.json({msg:"Jwt Valid"})
-        // res.json({tokenDetails,message:"Valid Token"})
-      }
-    })
+    // jwt.verify(token.token,process.env.SECRETKEY,(err,tokenDetails)=>{
+    //   if(err){
+    //     console.log(err.message);
+    //     // res.sendStatus(403);
+    //     res.json({msg:"Jwt Expired"})
+    //     // console.log("expired");
+    //   }else{
+    //     console.log("Valid");
+    //     res.json({msg:"Jwt Valid"})
+    //     // res.json({tokenDetails,message:"Valid Token"})
+    //   }
+    // })
 
+
+
+    
 });
 
 
@@ -133,7 +136,7 @@ const fetchChallenges = asyncHandler(async (req,res)=>{
   var active = [];
   var completed = [];
   
-  console.log("inge");
+  
   // console.log(challenges);
   BudChallenge.find({challenge_id:challenges},(err,results)=>{
     if (err) throw err

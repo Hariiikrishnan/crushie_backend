@@ -4,8 +4,8 @@ import jwt from "jsonwebtoken";
 // Verify Access Token
   function verifyToken(req,res,next){
 
-    console.log(req.headers.authorization);
-    var bearerHeader;
+    // console.log(req.headers.authorization);
+    // var bearerHeader;
     // if(req.body.headers){
     //   bearerHeader = req.body.headers.Authorization;
       
@@ -14,8 +14,8 @@ import jwt from "jsonwebtoken";
       
     // }
     
-    bearerHeader = req.headers['authorization'];
-
+    var bearerHeader = req.headers['authorization'];
+    
     if(typeof bearerHeader!=="undefined"){
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
@@ -33,11 +33,35 @@ import jwt from "jsonwebtoken";
         }
       })
     }else{
-      console.log("Undefined ena varudhu");
+      // console.log("In body and inside Headers");
       // console.log(req)
+
+      if(req.body && req.body.headers){
+        // console.log(req.body.headers.Authorization)
+        bearerHeader = req.body.headers.Authorization;
+        const bearer = bearerHeader.split(" ");
+        const bearerToken = bearer[1];
+        
+        jwt.verify(bearerToken,process.env.SECRETKEY,(err,tokenDetails)=>{
+          if(err){
+            console.log(err);
+            res.sendStatus(403);
+          }else{
+            // console.log("Valid");
+            req.userDetails = tokenDetails;
+            req.token = bearerToken;
+            // res.json({tokenDetails,message:"Valid Token"})
+            next();
+          }
+        })
+
+
+      }else{
+
+        res.sendStatus(403);
+      }
       // console.log(bearerHeader);
       // console.log(req.body.headers.Authorization);
-      res.sendStatus(403);
     }
   }
 
